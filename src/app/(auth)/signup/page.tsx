@@ -4,12 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Mail, Lock, User, ArrowRight, Github, Chrome, Check } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, Github, Chrome, Check, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 const BENEFITS = [
   'Access to 49 comprehensive lessons',
@@ -25,24 +27,111 @@ export default function SignupPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // TODO: Implement Supabase auth
-    setTimeout(() => {
+    setError(null)
+
+    try {
+      const supabase = createClient()
+
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            display_name: name.split(' ')[0],
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (authError) {
+        setError(authError.message)
+        toast.error(authError.message)
+        return
+      }
+
+      if (data.user) {
+        // Check if email confirmation is required
+        if (data.user.identities?.length === 0) {
+          setError('An account with this email already exists.')
+          toast.error('An account with this email already exists.')
+        } else if (data.session) {
+          // User is signed in immediately (email confirmation disabled)
+          toast.success('Account created successfully!')
+          router.push('/dashboard')
+          router.refresh()
+        } else {
+          // Email confirmation required
+          setSuccess(true)
+          toast.success('Check your email to confirm your account!')
+        }
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred'
+      setError(message)
+      toast.error(message)
+    } finally {
       setIsLoading(false)
-      router.push('/dashboard')
-    }, 1500)
+    }
   }
 
   const handleOAuthSignup = async (provider: 'google' | 'github') => {
     setIsLoading(true)
-    // TODO: Implement OAuth with Supabase
-    setTimeout(() => {
+    setError(null)
+
+    try {
+      const supabase = createClient()
+
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (authError) {
+        setError(authError.message)
+        toast.error(authError.message)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred'
+      setError(message)
+      toast.error(message)
+    } finally {
       setIsLoading(false)
-    }, 1500)
+    }
+  }
+
+  // Show success message after signup
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <motion.div
+          className="w-full max-w-md text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="w-20 h-20 rounded-full gradient-success flex items-center justify-center mx-auto mb-6">
+            <Check className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold mb-4">Check your email!</h1>
+          <p className="text-muted-foreground mb-6">
+            We&apos;ve sent a confirmation link to <strong>{email}</strong>.
+            Click the link to activate your account and start learning.
+          </p>
+          <Button variant="outline" onClick={() => router.push('/login')}>
+            Back to Login
+          </Button>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -133,6 +222,18 @@ export default function SignupPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Error Alert */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-sm text-destructive"
+                >
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  {error}
+                </motion.div>
+              )}
+
               {/* OAuth Buttons */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <Button
@@ -176,6 +277,7 @@ export default function SignupPage() {
                       onChange={(e) => setName(e.target.value)}
                       className="pl-10 h-11"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -192,6 +294,7 @@ export default function SignupPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 h-11"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -209,6 +312,7 @@ export default function SignupPage() {
                       className="pl-10 h-11"
                       required
                       minLength={8}
+                      disabled={isLoading}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
