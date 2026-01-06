@@ -10,8 +10,6 @@ import {
   Bell,
   Palette,
   Shield,
-  CreditCard,
-  Link as LinkIcon,
   Trash2,
   Save,
   Sun,

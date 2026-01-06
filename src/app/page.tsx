@@ -83,53 +83,15 @@ const TOOLS = [
   { name: 'Cursor', logo: '🔷' },
 ]
 
-const PRICING = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    description: 'Get started with the basics',
-    features: [
-      'Phase 1-2 content (10 lessons)',
-      'Basic exercises',
-      'Community access (read-only)',
-      'Limited AI playground',
-    ],
-    cta: 'Start Free',
-    popular: false,
-  },
-  {
-    name: 'Pro',
-    price: '$29',
-    period: '/month',
-    description: 'Full access to everything',
-    features: [
-      'All 49 lessons',
-      'Unlimited exercises',
-      'Project submissions',
-      'Certificate upon completion',
-      'Full community access',
-      'Priority support',
-    ],
-    cta: 'Start Pro',
-    popular: true,
-  },
-  {
-    name: 'Lifetime',
-    price: '$299',
-    period: 'one-time',
-    description: 'Forever access',
-    features: [
-      'Everything in Pro',
-      'Lifetime access',
-      'Future content updates',
-      'Priority community',
-      'Annual AI tool credits',
-      'Exclusive workshops',
-    ],
-    cta: 'Get Lifetime',
-    popular: false,
-  },
+const FREE_FEATURES = [
+  'All 49 comprehensive lessons',
+  'Full curriculum access (10 phases)',
+  '3 real-world projects to build',
+  'Unlimited exercises and quizzes',
+  'Full community access',
+  'Certificate upon completion',
+  'XP, badges, and leaderboards',
+  'Study groups and forums',
 ]
 
 export default function LandingPage() {
@@ -352,66 +314,57 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pricing Section */}
+        {/* 100% Free Section */}
         <section className="py-24">
           <div className="container px-4">
             <div className="text-center mb-16">
-              <Badge className="mb-4">Pricing</Badge>
+              <Badge className="mb-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">100% Free</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Simple, transparent pricing
+                Completely free. No hidden costs.
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Choose the plan that works for you. Start free, upgrade when you&apos;re ready.
+                We believe quality education should be accessible to everyone. Every feature, every lesson, every certificate — completely free.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {PRICING.map((plan, index) => (
-                <motion.div
-                  key={plan.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card
-                    className={`relative h-full ${
-                      plan.popular ? 'border-primary shadow-lg scale-105' : ''
-                    }`}
-                  >
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <Badge className="gradient-hero text-white border-0">Most Popular</Badge>
+            <motion.div
+              className="max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <Card className="border-2 border-emerald-500/50 shadow-lg">
+                <CardHeader className="text-center pb-2">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mx-auto mb-4">
+                    <Check className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <CardTitle className="text-3xl">Everything Included</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-5xl font-bold text-emerald-600">$0</span>
+                    <span className="text-muted-foreground ml-2">forever</span>
+                  </div>
+                  <CardDescription className="text-base mt-2">
+                    Full access to the entire platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-3 mb-8">
+                    {FREE_FEATURES.map((feature) => (
+                      <div key={feature} className="flex items-start gap-2">
+                        <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
                       </div>
-                    )}
-                    <CardHeader className="text-center">
-                      <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                      <div className="mt-4">
-                        <span className="text-4xl font-bold">{plan.price}</span>
-                        <span className="text-muted-foreground">{plan.period}</span>
-                      </div>
-                      <CardDescription>{plan.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-3 mb-6">
-                        {plan.features.map((feature) => (
-                          <li key={feature} className="flex items-start gap-2">
-                            <Check className="w-5 h-5 text-[var(--success)] flex-shrink-0 mt-0.5" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className={`w-full ${plan.popular ? 'gradient-hero border-0' : ''}`}
-                        variant={plan.popular ? 'default' : 'outline'}
-                      >
-                        {plan.cta}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                    ))}
+                  </div>
+                  <Link href="/signup" className="block">
+                    <Button className="w-full gradient-hero border-0 h-12 text-lg font-semibold">
+                      Start Learning Now
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </section>
 
