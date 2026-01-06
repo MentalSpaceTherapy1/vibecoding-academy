@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
   User,
@@ -113,11 +113,10 @@ const getRarityBadge = (rarity: string) => {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { theme, setTheme } = useTheme()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview')
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     const checkUser = async () => {
